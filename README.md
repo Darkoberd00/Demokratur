@@ -14,5 +14,6 @@ Programm:
   - Zentrale Frage beantworten: Tendiert das System zum Einparteiensystem (Diktatur) oder
     stell sich ein Gleichgewicht (Demokratie) ein?
   - Mögliche Erweiterungen:
+      - GUI
       - Mehr Parteien
       - Geänderte Übergangswahrscheinlichkeit
