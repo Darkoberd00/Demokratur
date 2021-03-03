@@ -5,7 +5,13 @@
  */
 package demokrautur;
 
+import java.awt.Color;
+import java.awt.GridLayout;
 import java.awt.Toolkit;
+import java.util.ArrayList;
+import java.util.Random;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 /**
  *
@@ -13,12 +19,43 @@ import java.awt.Toolkit;
  */
 public class MainFrame extends javax.swing.JFrame {
 
+    private static int hohe = 20;
+    private static int lange = 20;
+
+    private static ArrayList<Boolean> spielfeld;
+    private static Random random = new Random();
+
+    private static void ausgabeTest() {
+        for (int i = 0; i < spielfeld.size(); i++) {
+
+            System.out.print(spielfeld.get(i));
+            if (!(((i + 1) % lange) > 0)) {
+                System.out.println();
+            } else {
+                System.out.print("|");
+            }
+
+        }
+    }
+
     /**
      * Creates new form MainFrame
+     *
+     *
+     * Notizen: True = Schwartz = KPCh False = Rot = RKdK
      */
     public MainFrame() {
+        grid = new GridLayout(lange,hohe);
         setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/icon.png")));
+
+        panel = new JPanel(grid);
+        spielfeldInistialisieren();
+        
         initComponents();
+        
+        jScrollPane1.add(panel);
+        
+        this.revalidate();
     }
 
     /**
@@ -49,15 +86,25 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
+        jScrollPane1.setBackground(new java.awt.Color(0, 0, 0));
+        jScrollPane1.setForeground(new java.awt.Color(255, 255, 255));
+
         interration_txt.setText("Interration");
 
+        rkdk_txt.setForeground(new java.awt.Color(255, 0, 0));
         rkdk_txt.setText("RKdK");
 
+        kpch_txt.setBackground(new java.awt.Color(255, 255, 255));
         kpch_txt.setText("KPCh");
 
         rkdk_procent.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         rkdk_procent.setEditable(false);
         rkdk_procent.setText("0%");
+        rkdk_procent.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rkdk_procentActionPerformed(evt);
+            }
+        });
 
         kpch_procent.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         kpch_procent.setEditable(false);
@@ -124,9 +171,15 @@ public class MainFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_start_ButtonActionPerformed
 
+    // Ignorieren 
+
     private void kpch_procentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_kpch_procentActionPerformed
-        // TODO add your handling code here:
+
     }//GEN-LAST:event_kpch_procentActionPerformed
+
+    private void rkdk_procentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rkdk_procentActionPerformed
+
+    }//GEN-LAST:event_rkdk_procentActionPerformed
 
     /**
      * @param args the command line arguments
@@ -155,6 +208,12 @@ public class MainFrame extends javax.swing.JFrame {
         }
         //</editor-fold>
 
+        // Erstellung Des Spielfeld
+        spielfeld = new ArrayList<>();
+        randomSpielbrett();
+
+        ausgabeTest();
+
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -173,4 +232,29 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JLabel rkdk_txt;
     private javax.swing.JButton start_Button;
     // End of variables declaration//GEN-END:variables
+    private GridLayout grid;
+    private JPanel panel;
+
+    private static void randomSpielbrett() {
+
+        for (int i = 1; i <= lange * hohe; i++) {
+            spielfeld.add(random.nextBoolean());
+        }
+
+    }
+
+    private void spielfeldInistialisieren() {
+        javax.swing.JLabel partei = new JLabel();
+
+        for (int i = 0; i < hohe * lange; i++) {
+            if (spielfeld.get(i)) {
+                partei.setBackground(Color.BLACK);
+            } else {
+                partei.setBackground(Color.RED);
+            }
+            panel.add(partei);
+        }
+
+    }
+
 }
