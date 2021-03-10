@@ -10,6 +10,7 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Random;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -21,21 +22,68 @@ public class MainFrame extends javax.swing.JFrame {
 
     private static int hohe = 20;
     private static int lange = 20;
+    private static int reload = 1000;
 
     private static ArrayList<Boolean> spielfeld;
     private static Random random = new Random();
 
-    private static void ausgabeTest() {
-        for (int i = 0; i < spielfeld.size(); i++) {
+    private void ausgabeTest() {
+        spielPanel.removeAll();
 
-            System.out.print(spielfeld.get(i));
-            if (!(((i + 1) % lange) > 0)) {
-                System.out.println();
+        for (int i = 0; i < lange * hohe; i++) {
+            JPanel bewohner = new JPanel();
+
+            if (spielfeld.get(i)) {
+                bewohner.setBackground(Color.BLACK);
             } else {
-                System.out.print("|");
+                bewohner.setBackground(Color.RED);
+            }
+            spielPanel.add(bewohner);
+            bewohner.setVisible(true);
+        }
+
+        spielPanel.revalidate();
+        spielPanel.repaint();
+    }
+
+    private void gameloop() {
+
+        Wraparound wraparound = new Wraparound(hohe, lange);
+        int zahl = 0;
+
+        for (int i = 0; i < 100000; i++) {
+            int bewohner = random.nextInt((hohe * lange)) + 1;
+            wraparound.setBewohner(bewohner);
+            int randomNachbar = (random.nextInt(4) + 1);
+            switch (randomNachbar) {
+                case 1:
+                    randomNachbar = wraparound.getUp();
+                    break;
+                case 2:
+                    randomNachbar = wraparound.getRight();
+                    break;
+                case 3:
+                    randomNachbar = wraparound.getDown();
+                    break;
+                case 4:
+                    randomNachbar = wraparound.getLeft();
+                    break;
+                default:
+                    break;
+            }
+
+            if (spielfeld.get(bewohner - 1) != spielfeld.get(randomNachbar - 1)) {
+                spielfeld.set(randomNachbar - 1, random.nextBoolean());
+            }
+            zahl++;
+            if (zahl == reload) {
+                System.out.println("-----------------");
+                ausgabeTest();
+                zahl = 0;
             }
 
         }
+
     }
 
     /**
@@ -45,17 +93,9 @@ public class MainFrame extends javax.swing.JFrame {
      * Notizen: True = Schwartz = KPCh False = Rot = RKdK
      */
     public MainFrame() {
-        grid = new GridLayout(lange,hohe);
         setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/icon.png")));
 
-        panel = new JPanel(grid);
-        spielfeldInistialisieren();
-        
         initComponents();
-        
-        jScrollPane1.add(panel);
-        
-        this.revalidate();
     }
 
     /**
@@ -70,6 +110,7 @@ public class MainFrame extends javax.swing.JFrame {
         interation_int = new javax.swing.JSpinner();
         start_Button = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
+        spielPanel = new javax.swing.JPanel();
         interration_txt = new javax.swing.JLabel();
         rkdk_txt = new javax.swing.JLabel();
         kpch_txt = new javax.swing.JLabel();
@@ -77,7 +118,6 @@ public class MainFrame extends javax.swing.JFrame {
         kpch_procent = new java.awt.TextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setResizable(false);
 
         start_Button.setText("Start");
         start_Button.addActionListener(new java.awt.event.ActionListener() {
@@ -88,6 +128,9 @@ public class MainFrame extends javax.swing.JFrame {
 
         jScrollPane1.setBackground(new java.awt.Color(0, 0, 0));
         jScrollPane1.setForeground(new java.awt.Color(255, 255, 255));
+
+        spielPanel.setLayout(new java.awt.GridLayout(hohe, lange));
+        jScrollPane1.setViewportView(spielPanel);
 
         interration_txt.setText("Interration");
 
@@ -145,7 +188,7 @@ public class MainFrame extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 722, Short.MAX_VALUE)
+            .addComponent(jScrollPane1)
             .addGroup(layout.createSequentialGroup()
                 .addGap(13, 13, 13)
                 .addComponent(interration_txt)
@@ -168,7 +211,7 @@ public class MainFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void start_ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_start_ButtonActionPerformed
-        // TODO add your handling code here:
+        gameloop();
     }//GEN-LAST:event_start_ButtonActionPerformed
 
     // Ignorieren 
@@ -212,14 +255,13 @@ public class MainFrame extends javax.swing.JFrame {
         spielfeld = new ArrayList<>();
         randomSpielbrett();
 
-        ausgabeTest();
-
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new MainFrame().setVisible(true);
             }
         });
+
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -230,29 +272,14 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JLabel kpch_txt;
     private java.awt.TextField rkdk_procent;
     private javax.swing.JLabel rkdk_txt;
+    private javax.swing.JPanel spielPanel;
     private javax.swing.JButton start_Button;
     // End of variables declaration//GEN-END:variables
-    private GridLayout grid;
-    private JPanel panel;
 
     private static void randomSpielbrett() {
 
         for (int i = 1; i <= lange * hohe; i++) {
             spielfeld.add(random.nextBoolean());
-        }
-
-    }
-
-    private void spielfeldInistialisieren() {
-        javax.swing.JLabel partei = new JLabel();
-
-        for (int i = 0; i < hohe * lange; i++) {
-            if (spielfeld.get(i)) {
-                partei.setBackground(Color.BLACK);
-            } else {
-                partei.setBackground(Color.RED);
-            }
-            panel.add(partei);
         }
 
     }
