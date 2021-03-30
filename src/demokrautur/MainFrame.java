@@ -6,13 +6,9 @@
 package demokrautur;
 
 import java.awt.Color;
-import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Random;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 /**
  *
@@ -20,82 +16,54 @@ import javax.swing.JPanel;
  */
 public class MainFrame extends javax.swing.JFrame {
 
-    private static int hohe = 20;
-    private static int lange = 20;
-    private static int reload = 1000;
+    private static int hoehe = 20;
+    private static int laenge = 20;
+    private int reload = 100;
+    private int interationen = 0;
+    
+    private SpielfeldRenderer renderer;
+    Wraparound wraparound;
 
-    private static ArrayList<Boolean> spielfeld;
-    private static Random random = new Random();
+    private ArrayList<Bewohner> spielfeld;
+    private ArrayList<Partei> parteien;
+    private Random random = new Random();
 
-    private void ausgabeTest() {
-        spielPanel.removeAll();
-
-        for (int i = 0; i < lange * hohe; i++) {
-            JPanel bewohner = new JPanel();
-
-            if (spielfeld.get(i)) {
-                bewohner.setBackground(Color.BLACK);
-            } else {
-                bewohner.setBackground(Color.RED);
-            }
-            spielPanel.add(bewohner);
-            bewohner.setVisible(true);
-        }
-
-        spielPanel.revalidate();
-        spielPanel.repaint();
-    }
+    
 
     private void gameloop() {
-
-        Wraparound wraparound = new Wraparound(hohe, lange);
-        int zahl = 0;
-
-        for (int i = 0; i < 100000; i++) {
-            int bewohner = random.nextInt((hohe * lange)) + 1;
-            wraparound.setBewohner(bewohner);
-            int randomNachbar = (random.nextInt(4) + 1);
-            switch (randomNachbar) {
-                case 1:
-                    randomNachbar = wraparound.getUp();
-                    break;
-                case 2:
-                    randomNachbar = wraparound.getRight();
-                    break;
-                case 3:
-                    randomNachbar = wraparound.getDown();
-                    break;
-                case 4:
-                    randomNachbar = wraparound.getLeft();
-                    break;
-                default:
-                    break;
-            }
-
-            if (spielfeld.get(bewohner - 1) != spielfeld.get(randomNachbar - 1)) {
-                spielfeld.set(randomNachbar - 1, random.nextBoolean());
-            }
-            zahl++;
-            if (zahl == reload) {
-                System.out.println("-----------------");
-                ausgabeTest();
-                zahl = 0;
-            }
-
+        
+        for (int i = 0; i < (int)interation_int.getValue(); i++) {
+            
         }
-
     }
 
     /**
      * Creates new form MainFrame
      *
      *
-     * Notizen: True = Schwartz = KPCh False = Rot = RKdK
+     * Notizen: True = Schwartz = KPCh 
+     *          False = Rot = RKdK
      */
     public MainFrame() {
         setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/icon.png")));
-
         initComponents();
+
+        // Erstellung Des Spielfeld
+        spielfeld = new ArrayList<>();
+        parteien = new ArrayList<>();
+        
+        parteien.add(new Partei("KPCh", Color.BLACK));
+        parteien.add(new Partei("RKdK", Color.RED));
+
+        for (int i = 0; i < laenge * hoehe; i++) {
+            spielfeld.add(new Bewohner(parteien.get(random.nextInt(parteien.size()))));
+            spielPanel.add(spielfeld.get(i));
+        }
+        
+        wraparound = new Wraparound(hoehe, laenge);
+        renderer = new SpielfeldRenderer(spielfeld, wraparound);
+        renderer.execute();
+        
     }
 
     /**
@@ -116,8 +84,19 @@ public class MainFrame extends javax.swing.JFrame {
         kpch_txt = new javax.swing.JLabel();
         rkdk_procent = new java.awt.TextField();
         kpch_procent = new java.awt.TextField();
+        interationen_anzahl_txt = new javax.swing.JLabel();
+        interration_anzahl_graf = new java.awt.TextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Demokratur (China Edition)");
+        setResizable(false);
+
+        interation_int.setModel(new javax.swing.SpinnerNumberModel(10000, 1, 10000000, 1));
+        interation_int.setToolTipText("");
+        interation_int.setAutoscrolls(true);
+        interation_int.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        interation_int.setName(""); // NOI18N
+        interation_int.setValue(10000);
 
         start_Button.setText("Start");
         start_Button.addActionListener(new java.awt.event.ActionListener() {
@@ -129,7 +108,7 @@ public class MainFrame extends javax.swing.JFrame {
         jScrollPane1.setBackground(new java.awt.Color(0, 0, 0));
         jScrollPane1.setForeground(new java.awt.Color(255, 255, 255));
 
-        spielPanel.setLayout(new java.awt.GridLayout(hohe, lange));
+        spielPanel.setLayout(new java.awt.GridLayout(hoehe, laenge));
         jScrollPane1.setViewportView(spielPanel);
 
         interration_txt.setText("Interration");
@@ -158,12 +137,27 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
+        interationen_anzahl_txt.setText("anzahl:");
+
+        interration_anzahl_graf.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        interration_anzahl_graf.setEditable(false);
+        interration_anzahl_graf.setText("0");
+        interration_anzahl_graf.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                interration_anzahl_grafActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(interration_txt)
+                        .addGap(55, 55, 55))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -177,13 +171,14 @@ public class MainFrame extends javax.swing.JFrame {
                                     .addComponent(kpch_procent, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(interation_int, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(start_Button)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(interration_txt)
-                        .addGap(55, 55, 55)))
+                                .addGap(8, 8, 8)
+                                .addComponent(start_Button))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(1, 1, 1)
+                                .addComponent(interationen_anzahl_txt)
+                                .addGap(9, 9, 9)
+                                .addComponent(interration_anzahl_graf, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)))
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 722, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
@@ -192,26 +187,41 @@ public class MainFrame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(13, 13, 13)
                 .addComponent(interration_txt)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(start_Button)
-                    .addComponent(interation_int, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(40, 40, 40)
+                .addGap(15, 15, 15)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(kpch_txt, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(kpch_procent, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(interration_anzahl_graf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(interationen_anzahl_txt)
+                        .addGap(3, 3, 3)))
+                .addGap(5, 5, 5)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(interation_int, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(start_Button))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(37, 37, 37)
+                        .addComponent(kpch_txt, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(kpch_procent, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(8, 8, 8)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(rkdk_txt, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(rkdk_procent, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(346, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void start_ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_start_ButtonActionPerformed
-        gameloop();
+        //gameloop(); 
+        if(renderer.isPause()){
+            renderer.unpause();
+        }else{
+            renderer.pause();
+        }
     }//GEN-LAST:event_start_ButtonActionPerformed
 
     // Ignorieren 
@@ -223,6 +233,10 @@ public class MainFrame extends javax.swing.JFrame {
     private void rkdk_procentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rkdk_procentActionPerformed
 
     }//GEN-LAST:event_rkdk_procentActionPerformed
+
+    private void interration_anzahl_grafActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_interration_anzahl_grafActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_interration_anzahl_grafActionPerformed
 
     /**
      * @param args the command line arguments
@@ -251,10 +265,6 @@ public class MainFrame extends javax.swing.JFrame {
         }
         //</editor-fold>
 
-        // Erstellung Des Spielfeld
-        spielfeld = new ArrayList<>();
-        randomSpielbrett();
-
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -266,6 +276,8 @@ public class MainFrame extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JSpinner interation_int;
+    private javax.swing.JLabel interationen_anzahl_txt;
+    private java.awt.TextField interration_anzahl_graf;
     private javax.swing.JLabel interration_txt;
     private javax.swing.JScrollPane jScrollPane1;
     private java.awt.TextField kpch_procent;
@@ -275,13 +287,5 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JPanel spielPanel;
     private javax.swing.JButton start_Button;
     // End of variables declaration//GEN-END:variables
-
-    private static void randomSpielbrett() {
-
-        for (int i = 1; i <= lange * hohe; i++) {
-            spielfeld.add(random.nextBoolean());
-        }
-
-    }
 
 }
