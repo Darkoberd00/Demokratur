@@ -20,29 +20,68 @@ public class MainFrame extends javax.swing.JFrame {
     private static int laenge = 20;
     private int reload = 100;
     private int interationen = 0;
-    
-    private SpielfeldRenderer renderer;
-    Wraparound wraparound;
 
     private ArrayList<Bewohner> spielfeld;
     private ArrayList<Partei> parteien;
     private Random random = new Random();
 
-    
+    private void ausgabe() {
+
+        for (int i = 0; i < laenge * hoehe; i++) {
+            spielfeld.get(i).paint(spielfeld.get(i).getGraphics());
+        }
+
+        interration_anzahl_graf.setText(interationen + "");
+        
+    }
 
     private void gameloop() {
-        
-        for (int i = 0; i < (int)interation_int.getValue(); i++) {
-            
+
+        Wraparound wraparound = new Wraparound(hoehe, laenge);
+
+        for (int i = 0; i < (int) interation_int.getValue(); i++) {
+            int rngbewohner = random.nextInt((hoehe * laenge)) + 1;
+            wraparound.setBewohner(rngbewohner);
+            int randomNachbar = (random.nextInt(4) + 1);
+            switch (randomNachbar) {
+                case 1:
+                    randomNachbar = wraparound.getUp();
+                    break;
+                case 2:
+                    randomNachbar = wraparound.getRight();
+                    break;
+                case 3:
+                    randomNachbar = wraparound.getDown();
+                    break;
+                case 4:
+                    randomNachbar = wraparound.getLeft();
+                    break;
+                default:
+                    break;
+            }
+
+            // random farbe nachbar
+            if (!(spielfeld.get(rngbewohner - 1).getPartei().getName().equals(spielfeld.get(randomNachbar - 1).getPartei().getName()))) {
+
+                if (random.nextBoolean()) {
+                    spielfeld.get(randomNachbar - 1).setPartei(spielfeld.get(rngbewohner - 1).getPartei());
+                }
+
+            }
+
+            if ((i % reload) == 0) {
+                ausgabe();
+            }
+            interationen++;
         }
+        ausgabe();
     }
 
     /**
      * Creates new form MainFrame
      *
      *
-     * Notizen: True = Schwartz = KPCh 
-     *          False = Rot = RKdK
+     * Notizen: True = Schwartz = KPCh False = Rot = RKdK
      */
     public MainFrame() {
         setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/icon.png")));
@@ -51,7 +90,7 @@ public class MainFrame extends javax.swing.JFrame {
         // Erstellung Des Spielfeld
         spielfeld = new ArrayList<>();
         parteien = new ArrayList<>();
-        
+
         parteien.add(new Partei("KPCh", Color.BLACK));
         parteien.add(new Partei("RKdK", Color.RED));
 
@@ -59,11 +98,6 @@ public class MainFrame extends javax.swing.JFrame {
             spielfeld.add(new Bewohner(parteien.get(random.nextInt(parteien.size()))));
             spielPanel.add(spielfeld.get(i));
         }
-        
-        wraparound = new Wraparound(hoehe, laenge);
-        renderer = new SpielfeldRenderer(spielfeld, wraparound);
-        renderer.execute();
-        
     }
 
     /**
@@ -216,12 +250,7 @@ public class MainFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void start_ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_start_ButtonActionPerformed
-        //gameloop(); 
-        if(renderer.isPause()){
-            renderer.unpause();
-        }else{
-            renderer.pause();
-        }
+        gameloop();
     }//GEN-LAST:event_start_ButtonActionPerformed
 
     // Ignorieren 
