@@ -13,10 +13,18 @@ import java.awt.Color;
  */
 public class Partei {
 
+    
+    
     private final String name;
     private final Color farbe;
     
-
+    /**
+     * 
+     * wenn ueberzeugung <= 0 ist dann ist die wahrscheinlichkeit bei 50%
+     * 
+     * @param name
+     * @param farbe
+     */
     public Partei(String name, Color farbe) {
         this.name = name;
         this.farbe = farbe;

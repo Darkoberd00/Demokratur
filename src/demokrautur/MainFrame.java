@@ -24,6 +24,7 @@ public class MainFrame extends javax.swing.JFrame {
     private ArrayList<Bewohner> spielfeld;
     private ArrayList<Partei> parteien;
     private Random random = new Random();
+    private Wraparound wraparound = new Wraparound(hoehe, laenge);
 
     private void ausgabe() {
 
@@ -32,12 +33,10 @@ public class MainFrame extends javax.swing.JFrame {
         }
 
         interration_anzahl_graf.setText(interationen + "");
-        
+
     }
 
     private void gameloop() {
-
-        Wraparound wraparound = new Wraparound(hoehe, laenge);
 
         for (int i = 0; i < (int) interation_int.getValue(); i++) {
             int rngbewohner = random.nextInt((hoehe * laenge)) + 1;
@@ -73,6 +72,8 @@ public class MainFrame extends javax.swing.JFrame {
                 ausgabe();
             }
             interationen++;
+            
+            
         }
         ausgabe();
     }
