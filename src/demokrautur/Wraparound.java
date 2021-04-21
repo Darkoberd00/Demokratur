@@ -31,7 +31,7 @@ public final class Wraparound {
         this.hoehe = hoehe;
         this.breite = breite;
         this.bewohner = bewohner;
-        create();
+        nonWrapCreate();
     }
     
     public Wraparound(int hoehe, int breite) {
@@ -44,7 +44,7 @@ public final class Wraparound {
     
     public void setBewohner(int bewohner){
         this.bewohner = bewohner;
-        create();
+        nonWrapCreate();
     }
 
     /**
@@ -86,7 +86,8 @@ public final class Wraparound {
     public int getUp() {
         return up;
     }
-
+    
+    
     public int getHoehe() {
         return hoehe;
     }
@@ -134,6 +135,53 @@ public final class Wraparound {
                 } else if ((bewohner < breite * hoehe) && (bewohner > breite * (hoehe - 1))) {
                     up = bewohner - breite;
                     down = bewohner - (breite * (hoehe - 1));
+                } else {
+                    up = bewohner - breite;
+                    down = bewohner + breite;
+                }
+                right = bewohner + 1;
+                left = bewohner - 1;
+                break;
+        }
+    }
+    
+     public void nonWrapCreate() {
+        switch (bewohner % breite) {
+            case 0:
+                if (bewohner == breite) {
+                    up = 0;
+                    down = bewohner + breite;
+                } else if (bewohner == breite * hoehe) {
+                    up = bewohner - breite;
+                    down = 0;
+                } else {
+                    up = bewohner - breite;
+                    down = bewohner + breite;
+                }
+                right = 0;
+                left = bewohner - 1;
+                break;
+            case 1:
+                if (bewohner == 1) {
+                    up = 0;
+                    down = bewohner + breite;
+                } else if (bewohner == ((breite * (hoehe - 1)) + 1)) {
+                    up = bewohner - breite;
+                    down = 0;
+                } else {
+                    up = bewohner - breite;
+                    down = bewohner + breite;
+                }
+                right = bewohner + 1;
+                left = 0;
+                break;
+            default:
+                if (bewohner < breite) {
+                    up = 0;
+                    down = breite + bewohner;
+                } else if ((bewohner < breite * hoehe) && (bewohner > breite * (hoehe - 1))) {
+                    up = bewohner - breite;
+                    down = 0;
                 } else {
                     up = bewohner - breite;
                     down = bewohner + breite;

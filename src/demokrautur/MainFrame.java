@@ -41,8 +41,14 @@ public class MainFrame extends javax.swing.JFrame {
         for (int i = 0; i < (int) interation_int.getValue(); i++) {
             int rngbewohner = random.nextInt((hoehe * laenge)) + 1;
             wraparound.setBewohner(rngbewohner);
-            int randomNachbar = (random.nextInt(4) + 1);
-            switch (randomNachbar) {
+            wraparound.create();
+//            wraparound.nonWrapCreate();
+            
+            int randomNachbar = 0;
+            boolean test = true;
+            do {
+                int randomnum = (random.nextInt(4) + 1);                
+               switch (randomnum) {
                 case 1:
                     randomNachbar = wraparound.getUp();
                     break;
@@ -57,7 +63,12 @@ public class MainFrame extends javax.swing.JFrame {
                     break;
                 default:
                     break;
-            }
+                } 
+               
+               if(randomNachbar > 0){
+                   test = false;
+               }
+            } while (test);
 
             // random farbe nachbar
             if (!(spielfeld.get(rngbewohner - 1).getPartei().getName().equals(spielfeld.get(randomNachbar - 1).getPartei().getName()))) {
@@ -92,11 +103,30 @@ public class MainFrame extends javax.swing.JFrame {
         spielfeld = new ArrayList<>();
         parteien = new ArrayList<>();
 
+        
         parteien.add(new Partei("KPCh", Color.BLACK));
         parteien.add(new Partei("RKdK", Color.RED));
+        parteien.add(new Partei("Null", Color.WHITE));
 
         for (int i = 0; i < laenge * hoehe; i++) {
-            spielfeld.add(new Bewohner(parteien.get(random.nextInt(parteien.size()))));
+            
+//            if(i%hoehe < laenge/2){
+//                spielfeld.add(new Bewohner(parteien.get(0)));
+//            }else{
+//                spielfeld.add(new Bewohner(parteien.get(1)));
+//            }
+            
+            if(i < laenge * (hoehe/2)){
+                spielfeld.add(new Bewohner(parteien.get(0)));
+            }else{
+                spielfeld.add(new Bewohner(parteien.get(1)));
+            }
+            
+//            spielfeld.add(new Bewohner(parteien.get(random.nextInt(parteien.size()-1))));
+
+
+            
+            
             spielPanel.add(spielfeld.get(i));
         }
     }
@@ -131,7 +161,7 @@ public class MainFrame extends javax.swing.JFrame {
         interation_int.setAutoscrolls(true);
         interation_int.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         interation_int.setName(""); // NOI18N
-        interation_int.setValue(10000);
+        interation_int.setValue(1000000000);
 
         start_Button.setText("Start");
         start_Button.addActionListener(new java.awt.event.ActionListener() {
